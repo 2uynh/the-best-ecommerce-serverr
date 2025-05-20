@@ -40,13 +40,23 @@ exports.getProducts = async (req, res) => {
     if (sort === "asc") sortOption.price = 1;
     else if (sort === "desc") sortOption.price = -1;
 
+    // Truy vấn sản phẩm và chỉ lấy giá (price)
     const products = await Product.find(query).sort(sortOption);
 
-    res.status(200).json(products);
+    // Chỉ trả về thông tin giá gốc
+    const updatedProducts = products.map((product) => ({
+      ...product.toObject(),
+      price: product.price, // Chắc chắn rằng price được trả về
+    }));
+
+    res.status(200).json(updatedProducts);
   } catch (err) {
     res.status(500).json({ msg: "Server error" });
   }
 };
+
+
+
 
 exports.updateProduct = async (req, res) => {
   const { id } = req.params;
@@ -102,7 +112,6 @@ exports.getFeaturedProducts = async (req, res) => {
     console.log(type);
 
     const products = await Product.find(filter).populate("category_id");
-    console.log(products);
     res.status(200).json(products);
   } catch (err) {
     res.status(500).json({ msg: "Server error" });
